@@ -1,107 +1,139 @@
-package edu.ucalgary.oop;
 
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-
-
+import java.awt.*;
+import java.awt.event.*;
 
 public class GUI {
-    private SmartHome smartHome;
-    private SmartLight light;
-    private SmartThermostat thermostat;
-    private SmartLock lock;
-    private JLabel lightLabel, thermostatLabel, lockLabel;
-    private JTextField thermostatInput;
-
-    public GUI() {
-        light = new SmartLight();
-        thermostat = new SmartThermostat();
-        lock = new SmartLock();
-        smartHome = new SmartHome().addDevice(light).addDevice(thermostat).addDevice(lock).build();
-
-        JFrame frame = new JFrame("Smart Home System");
+    private JFrame frame;
+    
+    // Smart Light Components
+    private JLabel lightStatus;
+    
+    // Smart Thermostat Components
+    private JLabel thermostatStatus;
+    private JTextField tempInput;
+    
+    // Smart Lock Components
+    private JLabel lockStatus;
+    
+    public GUI() { 
+        frame = new JFrame("Smart Home System");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(400, 400);
-        frame.setLayout(new GridLayout(4, 1));
-
+        frame.setSize(450, 400);
+        frame.setLayout(new GridLayout(4, 1, 10, 10)); // Separate sections evenly
+    
+        
+        // ===================== Smart Light Panel =====================
         JPanel lightPanel = new JPanel();
-        lightLabel = new JLabel("Light is now " + (light.getState() ? "ON" : "OFF"));
-        JButton lightOnButton = new JButton("Turn ON");
-        JButton lightOffButton = new JButton("Turn OFF");
-        lightOnButton.addActionListener(e -> updateLight(true));
-        lightOffButton.addActionListener(e -> updateLight(false));
-        lightPanel.add(new JLabel("Smart Light"));
-        lightPanel.add(lightLabel);
-        lightPanel.add(lightOnButton);
-        lightPanel.add(lightOffButton);
+        lightPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.BLUE), "Smart Light"));
+        lightPanel.setLayout(new GridLayout(2, 1)); // Label on top, buttons below
+        
+        lightStatus = new JLabel("Light is now OFF", SwingConstants.CENTER);
+        JPanel lightButtonPanel = new JPanel(new FlowLayout());
+        JButton turnOn = new JButton("Turn ON");
+        JButton turnOff = new JButton("Turn OFF");
+
+        turnOn.addActionListener(e -> updateLightStatus(true));
+        turnOff.addActionListener(e -> updateLightStatus(false));
+
+        lightButtonPanel.add(turnOn);
+        lightButtonPanel.add(turnOff);
+
+        lightPanel.add(lightStatus);
+        lightPanel.add(lightButtonPanel);
         frame.add(lightPanel);
 
+        // ===================== Smart Thermostat Panel =====================
         JPanel thermostatPanel = new JPanel();
-        thermostatLabel = new JLabel("Thermostat: " + thermostat.getState() + "°C");
-        thermostatInput = new JTextField(5);
-        JButton setTempButton = new JButton("Set Temperature");
-        setTempButton.addActionListener(e -> updateThermostat());
-        thermostatPanel.add(new JLabel("Smart Thermostat"));
-        thermostatPanel.add(thermostatLabel);
-        thermostatPanel.add(thermostatInput);
-        thermostatPanel.add(setTempButton);
+        thermostatPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.BLUE), "Smart Thermostat"));
+        thermostatPanel.setLayout(new GridLayout(2, 1));
+
+        thermostatStatus = new JLabel("Temperature: 22°C", SwingConstants.CENTER);
+        JPanel thermostatControlPanel = new JPanel(new FlowLayout());
+        tempInput = new JTextField(5);
+        JButton setTemp = new JButton("Set Temperature");
+
+        setTemp.addActionListener(e -> updateThermostat());
+
+        thermostatControlPanel.add(tempInput);
+        thermostatControlPanel.add(setTemp);
+
+        thermostatPanel.add(thermostatStatus);
+        thermostatPanel.add(thermostatControlPanel);
         frame.add(thermostatPanel);
 
+        // ===================== Smart Lock Panel =====================
         JPanel lockPanel = new JPanel();
-        lockLabel = new JLabel("Lock: " + (lock.getState() ? "LOCKED" : "UNLOCKED"));
+        lockPanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.BLUE), "Smart Lock"));
+        lockPanel.setLayout(new GridLayout(2, 1));
+
+        lockStatus = new JLabel("Lock: LOCKED", SwingConstants.CENTER);
+        JPanel lockButtonPanel = new JPanel(new FlowLayout());
         JButton lockButton = new JButton("Lock");
         JButton unlockButton = new JButton("Unlock");
-        lockButton.addActionListener(e -> updateLock(true));
-        unlockButton.addActionListener(e -> updateLock(false));
-        lockPanel.add(new JLabel("Smart Lock"));
-        lockPanel.add(lockLabel);
-        lockPanel.add(lockButton);
-        lockPanel.add(unlockButton);
+
+        lockButton.addActionListener(e -> updateLockStatus(true));
+        unlockButton.addActionListener(e -> updateLockStatus(false));
+
+        lockButtonPanel.add(lockButton);
+        lockButtonPanel.add(unlockButton);
+
+        lockPanel.add(lockStatus);
+        lockPanel.add(lockButtonPanel);
         frame.add(lockPanel);
 
-        
+        // ===================== Mode Control Panel =====================
         JPanel modePanel = new JPanel();
-        JButton sleepModeButton = new JButton("Sleep Mode");
-        JButton vacationModeButton = new JButton("Vacation Mode");
-        sleepModeButton.addActionListener(e -> applyMode("Sleep"));
-        vacationModeButton.addActionListener(e -> applyMode("Vacation"));
-        modePanel.add(new JLabel("Select Mode"));
-        modePanel.add(sleepModeButton);
-        modePanel.add(vacationModeButton);
+        modePanel.setBorder(BorderFactory.createTitledBorder(BorderFactory.createLineBorder(Color.BLUE), "Modes"));
+        modePanel.setLayout(new GridLayout(2, 1));
+
+        JLabel modeLabel = new JLabel("Select Mode", SwingConstants.CENTER);
+        JPanel modeButtonPanel = new JPanel(new FlowLayout());
+        JButton sleepMode = new JButton("Sleep Mode");
+        JButton vacationMode = new JButton("Vacation Mode");
+
+        sleepMode.addActionListener(e -> applyMode("Sleep"));
+        vacationMode.addActionListener(e -> applyMode("Vacation"));
+
+        modeButtonPanel.add(sleepMode);
+        modeButtonPanel.add(vacationMode);
+
+        modePanel.add(modeLabel);
+        modePanel.add(modeButtonPanel);
         frame.add(modePanel);
 
+        // ===================== Finalize UI =====================
         frame.setVisible(true);
     }
 
-    private void updateLight(boolean state) {
-        smartHome.setDeviceState(light, state);
-        lightLabel.setText("Light is now " + (state ? "ON" : "OFF"));
-        JOptionPane.showMessageDialog(null, "Light is now " + (state ? "ON" : "OFF"), "Smart Home System", JOptionPane.INFORMATION_MESSAGE);
+    // Light Status Update
+    private void updateLightStatus(boolean isOn) {
+        lightStatus.setText("Light is now " + (isOn ? "ON" : "OFF"));
+        JOptionPane.showMessageDialog(frame, "Light is now " + (isOn ? "ON" : "OFF"), "Smart Home System", JOptionPane.INFORMATION_MESSAGE);
     }
 
+    // Thermostat Update
     private void updateThermostat() {
         try {
-            int temp = Integer.parseInt(thermostatInput.getText());
-            smartHome.setDeviceState(thermostat, temp);
-            thermostatLabel.setText("Thermostat: " + temp + "°C");
-            JOptionPane.showMessageDialog(null, "Thermostat set to " + temp + "°C", "Smart Home System", JOptionPane.INFORMATION_MESSAGE);
+            int temp = Integer.parseInt(tempInput.getText());
+            thermostatStatus.setText("Temperature: " + temp + "°C");
+            JOptionPane.showMessageDialog(frame, "Thermostat set to " + temp + "°C", "Smart Home System", JOptionPane.INFORMATION_MESSAGE);
         } catch (NumberFormatException e) {
-            JOptionPane.showMessageDialog(null, "Invalid temperature input", "Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(frame, "Please enter a valid number", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
-    private void updateLock(boolean state) {
-        smartHome.setDeviceState(lock, state);
-        lockLabel.setText("Lock: " + (state ? "LOCKED" : "UNLOCKED"));
-        JOptionPane.showMessageDialog(null, "Lock is now " + (state ? "LOCKED" : "UNLOCKED"), "Smart Home System", JOptionPane.INFORMATION_MESSAGE);
+    // Lock Status Update
+    private void updateLockStatus(boolean isLocked) {
+        lockStatus.setText("Lock: " + (isLocked ? "LOCKED" : "UNLOCKED"));
+        JOptionPane.showMessageDialog(frame, "Lock is now " + (isLocked ? "LOCKED" : "UNLOCKED"), "Smart Home System", JOptionPane.INFORMATION_MESSAGE);
     }
 
+    // Apply Modes
     private void applyMode(String mode) {
-        smartHome.sendMessage(mode);
-        JOptionPane.showMessageDialog(null, mode + " mode applied", "Smart Home System", JOptionPane.INFORMATION_MESSAGE);
+        JOptionPane.showMessageDialog(frame, mode + " Mode Activated", "Smart Home System", JOptionPane.INFORMATION_MESSAGE);
     }
 
     public static void main(String[] args) {
